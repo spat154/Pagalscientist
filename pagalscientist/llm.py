@@ -68,17 +68,22 @@ def _stub_response(system: str, user: str) -> str:
     # The generator asks for JSON; detect that and return a structured stub.
     if "JSON" in system or "json" in system:
         return json.dumps({
-            "headline": "[DRY-RUN] India desk draft pending live model",
+            "pillar": "1. Value to Indians living in Australia (dry-run placeholder).",
+            "headline": "[DRY-RUN] Draft pending live model",
             "dek": "Set ANTHROPIC_API_KEY to generate the real, audience-tuned story.",
-            "angle": "Connecting angle will be synthesized by the live model.",
+            "hook": "A quick note before the real writer takes over.",
             "body": (
                 "_This is a deterministic dry-run draft._\n\n"
-                "The pipeline successfully sensed, clustered and verified this "
-                "story. With a live Claude key it would now be rewritten for the "
-                "Middle India reader — plain language, the 'what this means for "
-                "me' angle, and any connecting patterns across recent news.\n\n"
-                "**Facts provided to the writer:**\n\n" + user[-1200:]
+                "## What happened\n\n"
+                "The pipeline sensed, clustered and verified this story. With a "
+                "live Claude key it would be written for the Indian-Australian "
+                "reader in Australian English, journalistic and analytical, with "
+                "a strong hook, clear subheadings and proper depth.\n\n"
+                "## Facts provided to the writer\n\n" + user[-1200:]
             ),
+            "takeaway": "Add your API key to turn this into a finished, sourced article.",
             "tags": ["made-in-india", "dry-run"],
+            "references": [],
+            "unverified_notes": ["I cannot verify any specifics in dry-run mode."],
         })
     return "[DRY-RUN] No live model configured."

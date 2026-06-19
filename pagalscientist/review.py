@@ -9,11 +9,45 @@ from __future__ import annotations
 import logging
 
 from .config import Settings
+from .llm import LLMClient
 from .models import Story, StoryStatus, now_iso
 from .publish import PublishResult, get_publisher
+from .seo import generate_seo
+from .social import generate_social
 from .store import Store
 
 log = logging.getLogger(__name__)
+
+
+def run_seo(store: Store, story_id: str, settings: Settings,
+            llm: LLMClient | None = None) -> Story:
+    """Step 2: attach the SEO package to the story."""
+    story = store.get_story(story_id)
+    if not story:
+        raise KeyError(f"No story {story_id}")
+    story.seo = generate_seo(story, settings, llm=llm)
+    story.updated_at = now_iso()
+    store.upsert_story(story)
+    return story
+
+
+def run_social(store: Store, story_id: str, settings: Settings,
+               llm: LLMClient | None = None) -> Story:
+    """Step 3: attach the social story post to the story."""
+    story = store.get_story(story_id)
+    if not story:
+        raise KeyError(f"No story {story_id}")
+    story.social = generate_social(story, settings, llm=llm)
+    story.updated_at = now_iso()
+    store.upsert_story(story)
+    return story
+
+
+def package(store: Store, story_id: str, settings: Settings,
+            llm: LLMClient | None = None) -> Story:
+    """Run steps 2 and 3 so the story is fully ready to publish."""
+    run_seo(store, story_id, settings, llm=llm)
+    return run_social(store, story_id, settings, llm=llm)
 
 
 def edit_story(store: Store, story_id: str, *, headline=None, dek=None,

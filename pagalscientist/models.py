@@ -120,7 +120,7 @@ class CredibilityReport:
 
 @dataclass
 class Story:
-    """A drafted, India-customized article staged for review/publishing."""
+    """A drafted, diaspora-customized article staged for review/publishing."""
 
     id: str
     cluster_id: str
@@ -135,10 +135,21 @@ class Story:
     sources: list[dict[str, str]] = field(default_factory=list)  # {name, link}
     editor_notes: str = ""
     published_targets: dict[str, str] = field(default_factory=dict)  # target -> url/id
+    # --- editorial brief fields ---
+    hook: str = ""                     # opening hook
+    takeaway: str = ""                 # closing reflection
+    pillar: str = ""                   # which of the 3 pillars it serves + why
+    # Each quote/date must carry >= N reference URLs: {claim, type, urls:[...]}
+    references: list[dict[str, Any]] = field(default_factory=list)
+    unverified_notes: list[str] = field(default_factory=list)
+    compliance: dict[str, Any] = field(default_factory=dict)   # style lint result
+    seo: dict[str, Any] = field(default_factory=dict)          # step 2 output
+    social: dict[str, Any] = field(default_factory=dict)       # step 3 output
 
     @classmethod
     def create(cls, *, cluster_id, headline, dek, body, tags,
-               credibility, sources) -> "Story":
+               credibility, sources, hook="", takeaway="", pillar="",
+               references=None, unverified_notes=None) -> "Story":
         ts = now_iso()
         return cls(
             id=make_id(cluster_id, headline),
@@ -152,6 +163,11 @@ class Story:
             updated_at=ts,
             credibility=credibility,
             sources=sources,
+            hook=hook,
+            takeaway=takeaway,
+            pillar=pillar,
+            references=list(references or []),
+            unverified_notes=list(unverified_notes or []),
         )
 
     def to_dict(self) -> dict[str, Any]:

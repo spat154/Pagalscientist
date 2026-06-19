@@ -1,164 +1,161 @@
-# Made in India — News Automation Desk
+# Made in India Magazine — content engine
 
-An editorial pipeline that **senses** relevant news for the *Middle India*
-audience, **verifies** it, **drafts** a customized story (with the connecting
-angle drawn out), and **stages** it for review so an editor can do the final
-pass and hit one button to **publish everywhere**.
+An editorial engine for **Made in India Magazine** (Australia). It **senses**
+news relevant to the Indian-Australian community, **verifies** it against the
+magazine's strict fact standards, **writes** a finished article in the
+magazine's voice (Australian English, hook-first, properly sourced), then
+produces the **SEO package** and the **social story post** so a piece is ready
+to review and publish.
 
-It does *not* buy a wire from a paid third-party news service. The desk senses
-the news itself from free, public RSS feeds and topic-targeted news queries.
+It does *not* buy a wire from a paid news service. The engine senses the news
+itself from free, public feeds and topic queries.
 
 ```
-ingest  ─►  cluster  ─►  verify  ─►  generate  ─►  review  ─►  publish
-(sense)    (patterns)   (trust)     (Claude)     (human)    (one button)
+ingest  ─►  cluster  ─►  verify  ─►  write  ─►  SEO  ─►  social  ─►  review  ─►  publish
+(sense)    (patterns)   (trust)    (step 1)  (step 2) (step 3)    (human)    (one button)
 ```
 
-A human approves every story before anything goes live. The AI gets it
-*ready*; the editor hits the button.
+A human approves every story before anything goes live.
 
----
+## Inputs: what you give it
 
-## Why it is built this way
+You mostly **tell it to start** — `run` senses the news, decides what is worth
+covering, drafts it, and queues it for you. Day to day, the only input it needs
+from you is the final approval before publishing.
 
-| Decision | Choice | Reason |
-|---|---|---|
-| News sourcing | Free public RSS + Google News RSS queries (`config/sources.yaml`) | No paid wire; we "tap and sense" the news ourselves |
-| Audience | "Middle India" persona encoded in `config/settings.yaml` | Every story is rewritten for tier-2/tier-3, value-conscious, bilingual readers |
-| Finding angles/patterns | Token-overlap clustering + cross-cluster theme detection | Same story from many sources collapses into one; recurring themes surface as "trending" |
-| Verification | Transparent multi-signal score (source tier, corroboration, recency, hype flags) | Routes editor attention; it screens, it does not replace human judgment |
-| Drafting | Claude, with a strict "only what sources support" brief | Customized for the audience without inventing facts |
-| Publishing | Pluggable targets; staged as **draft** by default | "Have it ready, then hit a button" — WordPress adapter included, more are easy to add |
-| Storage | SQLite | Zero-config, makes re-runs idempotent (no duplicate articles/stories) |
+There are two ways stories enter the engine:
 
-The pure logic (clustering, scoring, store, review) uses **only the standard
-library**, so the test suite and a deterministic **dry-run mode** work with no
-network and no API keys. `feedparser`, `anthropic`, `requests` and `PyYAML`
-are imported lazily and only needed for the live integrations.
+1. **Autonomous** — `run` finds and drafts stories on its own.
+2. **Commissioned** — you hand it sources and a direction (the "Create Article"
+   function): `commission --sources sources.json --direction "..."`. Use this
+   when you already have the material and an angle.
 
----
+Beyond that, four one-time setup inputs make it *your* magazine's engine:
+your **feeds** (`config/sources.yaml`), your **audience + voice**
+(`config/settings.yaml` + `config/style_rules.yaml`), your **Claude API key**,
+and your **publishing destinations**.
+
+## The three pillars
+
+Every story must clearly serve at least one, and the writer names which:
+
+1. Adds value to **Indians living in Australia**.
+2. Adds value to **Australians interested in Indian culture**.
+3. **Global news with direct Australian impact**, especially for the diaspora.
+
+## What the brief enforces (mechanically, not just by prompting)
+
+- **Australian English.** US spellings are auto-corrected (`optimized` →
+  `optimised`) and any remaining ones are flagged.
+- **Banned words and phrases.** The full list from the brief lives in
+  `config/style_rules.yaml`; `style.py` flags every occurrence.
+- **No em dash** and **no "it's not X, it's Y"** structure.
+- **Fact standards.** The writer is instructed never to invent facts and to
+  supply **at least 3 reference URLs for every quote and every date**. The
+  engine then scans the article and flags any quote/date that is not backed by
+  enough references, and surfaces any `I cannot verify…` notes.
+- **Hook-first, subheadings, depth** (5–7 lines per person/org/case study), and
+  a closing takeaway.
+
+All of this is attached to each story as a `compliance` report so the editor
+sees exactly what to fix.
+
+## Step 2 — SEO (`seo.py`)
+
+Produces a focus keyword, secondary keywords, an SEO title, a meta description
+and a slug, then runs a **RankMath-style on-page checklist** (focus keyword in
+title/intro/slug/meta, title and meta lengths, content length) and scores it
+out of 100. Live keyword volumes can be enriched with the SEO MCP tools
+(`keyword_metrics`, `serp_analysis`) by the editor.
+
+## Step 3 — social story post (`social.py`)
+
+A scroll-stopping but professional hook + caption (at most 3 lines, the word
+"sibling" is banned, house-style applies), plus an approved CTA
+("Explore the full story" / "Discover what happened next" /
+"Read the full article") and hashtags.
 
 ## Quick start
 
 ```bash
 pip install -r requirements.txt
-cp .env.example .env          # add your keys (optional for a dry run)
+cp .env.example .env            # add your keys (optional for a dry run)
 
-# Sense -> cluster -> verify -> draft. Stories land in the review queue.
-python -m pagalscientist.cli run
-
-# See what's waiting, with credibility score + recommendation.
-python -m pagalscientist.cli queue
-
-# Read a draft (and its sources + credibility report).
-python -m pagalscientist.cli show <story-id>
-
-# Editor tweaks, approves, and publishes everywhere.
-python -m pagalscientist.cli edit <story-id> --headline "Better headline"
-python -m pagalscientist.cli approve <story-id>
-python -m pagalscientist.cli publish <story-id>
-
-# What themes are trending across multiple stories right now?
-python -m pagalscientist.cli patterns
+python -m pagalscientist.cli run            # sense → cluster → verify → draft
+python -m pagalscientist.cli queue          # what's awaiting review (+ score)
+python -m pagalscientist.cli show <id>      # full draft, compliance, SEO, social
+python -m pagalscientist.cli package <id>   # run step 2 + step 3
+python -m pagalscientist.cli approve <id>
+python -m pagalscientist.cli publish <id>   # the "publish everywhere" button
 ```
 
-Without `ANTHROPIC_API_KEY`, generation runs in **dry-run**: the pipeline still
-ingests, clusters, verifies and produces a placeholder draft so you can see the
-whole flow. Add the key to get real, audience-tuned stories.
+Commission a piece from your own material:
 
----
+```bash
+python -m pagalscientist.cli commission \
+  --sources sources.json \
+  --direction "What the trade deal means for Indian-owned small businesses here"
+```
+
+`sources.json` is a list of `{source, title, summary, link, tier}`.
+
+Without `ANTHROPIC_API_KEY`, generation runs in **dry-run**: the pipeline still
+senses, clusters, verifies, runs every compliance/SEO/social check and produces
+a clearly-labelled placeholder, so the whole flow is demonstrable offline.
 
 ## Configuration
 
-- **`config/sources.yaml`** — the feeds the desk listens to. Each has a
-  `trust_tier` (1 = official/paper-of-record, 3 = aggregator) and an
-  `audience_weight` (how strongly it skews to Middle India). Add or remove
-  feeds freely.
-- **`config/settings.yaml`** — the audience persona, clustering sensitivity,
-  verification thresholds, models, and publishing targets.
-- **`.env`** — secrets and deployment paths (`ANTHROPIC_API_KEY`, `WP_*`,
-  `PAGAL_DB`). Model ids can be overridden with `PAGAL_GENERATION_MODEL` /
-  `PAGAL_VERIFY_MODEL`.
-
----
+- **`config/sources.yaml`** — the feeds (Australia, India, and diaspora/
+  intersection queries), each with a trust tier and audience weight.
+- **`config/settings.yaml`** — publication, audience persona, the three
+  pillars, clustering/verification thresholds, models, SEO and social options.
+- **`config/style_rules.yaml`** — Australian-English map, banned words/phrases,
+  em-dash and structure bans, hedge-trigger words, approved CTAs, caption rules.
+- **`.env`** — `ANTHROPIC_API_KEY`, `WP_*`, `PAGAL_DB`, model overrides.
 
 ## Publishing targets
 
-Targets implement a small `Publisher` interface (`pagalscientist/publish/`):
-
-- **`console`** (default) — renders the story to `out/<id>.md` and prints a
-  preview. No credentials. Great for review and demos.
-- **`wordpress`** — posts to the WordPress REST API as a **draft** (set
-  `WP_BASE_URL`, `WP_USERNAME`, `WP_APP_PASSWORD`; uses an Application
-  Password). Flip `publishing.stage_as_draft: false` to publish live.
-
-Enable targets in `config/settings.yaml` (`publishing.default_targets`) or per
-command (`publish <id> --targets console,wordpress`). The publish step fans the
-story out to **all** enabled targets at once — that's the "publish everywhere"
-button. Adding WhatsApp, Instagram, or a newsletter is a new file in
-`publish/`, no pipeline changes.
-
----
-
-## How verification works (the trust score)
-
-`score_cluster` blends four transparent signals into 0–100:
-
-- **Source trust** (0–40): best source tier in the cluster.
-- **Corroboration** (0–35): how many *distinct* sources report it.
-- **Recency** (0–25): exponential decay with a configurable half-life.
-- **Language penalty**: deductions for sensational/clickbait and
-  unverified-claim markers ("viral", "sources say", "allegedly", ...).
-
-It outputs a recommendation — `fast_review`, `review`, or `hold` — and raises
-flags (`single_source`, `sensational_language`, ...) so editors know where to
-look. Stories below `min_score_to_draft` are never drafted.
-
----
-
-## Running automatically
-
-`python -m pagalscientist.cli run` is safe to run on a schedule (cron, a
-systemd timer, or a GitHub Action). It is idempotent: already-seen articles are
-skipped and clusters that already have a story are not re-drafted. New verified
-drafts simply accumulate in the review queue for an editor to clear.
-
----
+Pluggable (`pagalscientist/publish/`): **`console`** renders to `out/<id>.md`
+(default, no credentials); **`wordpress`** posts a draft via the REST API
+(set `WP_*`). The publish step fans out to all enabled targets at once. Social
+and newsletter adapters are a new file each.
 
 ## Tests
 
 ```bash
-pip install pytest
-python -m pytest
+pip install pytest && python -m pytest
 ```
 
-The suite covers tokenization, clustering and pattern detection, the
-verification scorer, the SQLite store, and a full offline pipeline run through
-to publish — all without network access or API keys.
-
----
+26 tests cover tokenization, clustering/pattern detection, the verification
+scorer, the SQLite store, the house-style linter (banned words, em dash,
+AU English, the not-X-its-Y structure), SEO/RankMath checks, social caption
+rules, the commission path, and a full offline pipeline run through to publish.
 
 ## Project layout
 
 ```
-config/                 sources.yaml + settings.yaml
+config/                 sources.yaml · settings.yaml · style_rules.yaml
 pagalscientist/
   ingest.py             sense the news (RSS)
-  cluster.py            group related stories + detect patterns/angles
+  cluster.py            group related stories + detect patterns
   verify.py             credibility scoring
   llm.py                Claude wrapper (+ deterministic dry-run)
-  generate.py           draft the India-customized story
+  style.py              Australian-English + banned-content linter
+  generate.py           step 1: write the article (+ fact/style checks)
+  seo.py                step 2: SEO package (RankMath-aligned)
+  social.py             step 3: social story post
   publish/              pluggable targets (console, wordpress, ...)
-  pipeline.py           ingest -> cluster -> verify -> draft
-  review.py             edit / approve / reject / publish-everywhere
+  pipeline.py           ingest → cluster → verify → draft, and commission
+  review.py             edit / approve / SEO / social / publish-everywhere
   cli.py                command-line control
   store.py              SQLite persistence
 tests/
 ```
 
-## Roadmap / not yet built
+## Roadmap
 
-- LLM-assisted fact-flagging as a second verification signal (the hook is
-  there: `verify_model` in settings, `LLMClient` ready).
-- Real social/newsletter publishers (Instagram, WhatsApp, Brevo email).
-- A small web review UI on top of the same store and `review.py` functions.
-- Image generation/selection for each story.
+- LLM-assisted fact-flagging as a second verification signal.
+- Real social/newsletter publishers (Instagram, WhatsApp, email).
+- Live SEO keyword enrichment wired through the SEO MCP tools.
+- A small web review UI on the same store and `review.py` functions.
+- Per-story image generation/selection.

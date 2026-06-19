@@ -85,6 +85,54 @@ class Pipeline:
                      story.id, report.score, cluster.id)
         return created
 
+    # --- commission: editor supplies sources + a direction --------------
+    def commission(self, sources: list[dict], *, direction: str = "",
+                   references: list[str] | None = None):
+        """Create a draft from supplied sources instead of sensed feeds.
+
+        `sources` is a list of dicts: {source, title, summary, link, tier?}.
+        This is the "Create Article" function from the brief: hand it material
+        and a direction, get back a draft scored and compliance-checked.
+        """
+        from .cluster import cluster_articles
+        from .models import Article
+
+        articles = []
+        for s in sources:
+            articles.append(Article.create(
+                source=s.get("source", "supplied"),
+                source_tier=int(s.get("tier", 2)),
+                audience_weight=float(s.get("audience_weight", 0.9)),
+                title=s.get("title", ""),
+                summary=s.get("summary", ""),
+                link=s.get("link", ""),
+                published=s.get("published", ""),
+            ))
+        self.store.add_new_articles(articles)
+        clusters = cluster_articles(
+            articles,
+            similarity_threshold=self.settings.clustering.get("similarity_threshold", 0.18),
+            min_token_length=self.settings.clustering.get("min_token_length", 3),
+        )
+        # Treat all supplied material as one commissioned story.
+        merged = clusters[0]
+        merged.article_ids = [a.id for a in articles]
+        merged.sources = [a.source for a in articles]
+        articles_by_id = {a.id: a for a in articles}
+
+        report = score_cluster(
+            merged, articles_by_id,
+            corroboration_for_auto=self.settings.verification.get("corroboration_for_auto", 2),
+            recency_half_life_hours=self.settings.verification.get("recency_half_life_hours", 18),
+        )
+        story = generate_story(
+            merged, articles_by_id, report.to_dict(), self.settings,
+            llm=self.llm, direction=direction, references=references,
+        )
+        self.store.upsert_cluster(merged)
+        self.store.upsert_story(story)
+        return story
+
     # --- convenience: run everything up to drafting ---------------------
     def run(self, limit_per_source: int = 25, max_stories: int | None = None) -> dict:
         n_new = self.ingest(limit_per_source=limit_per_source)

@@ -1,0 +1,167 @@
+# Made in India Magazine — house style rules, enforced mechanically.
+#
+# These come straight from the editorial brief. style.py loads this file and
+# lints every generated article + social caption against it, so compliance does
+# not depend on the model "remembering" the rules.
+
+language: en-AU   # Australian English is mandatory
+
+# US -> AU spelling corrections to flag (extensible; not exhaustive).
+au_spelling:
+  optimize: optimise
+  optimized: optimised
+  optimizing: optimising
+  organize: organise
+  organized: organised
+  organizing: organising
+  organization: organisation
+  realize: realise
+  realized: realised
+  recognize: recognise
+  recognized: recognised
+  analyze: analyse
+  analyzed: analysed
+  analyzing: analysing
+  prioritize: prioritise
+  prioritized: prioritised
+  emphasize: emphasise
+  apologize: apologise
+  capitalize: capitalise
+  minimize: minimise
+  maximize: maximise
+  utilize: utilise
+  color: colour
+  colors: colours
+  colored: coloured
+  flavor: flavour
+  flavors: flavours
+  honor: honour
+  honored: honoured
+  labor: labour
+  neighbor: neighbour
+  neighbors: neighbours
+  behavior: behaviour
+  favorite: favourite
+  favor: favour
+  center: centre
+  centers: centres
+  theater: theatre
+  meter: metre
+  fiber: fibre
+  liter: litre
+  catalog: catalogue
+  dialog: dialogue
+  defense: defence
+  offense: offence
+  license: licence       # noun; AU uses 'license' as verb only
+  traveled: travelled
+  traveling: travelling
+  modeling: modelling
+  enrollment: enrolment
+  fulfill: fulfil
+  maneuver: manoeuvre
+  aluminum: aluminium
+  aluminium: aluminium
+
+# Hard formatting bans.
+ban_em_dash: true        # the — character is not allowed
+# "It's not X, it's Y" (and variations) is banned as a structure.
+ban_not_x_its_y: true
+
+# Single words that must not appear (word-boundary, case-insensitive).
+banned_words:
+  - reshaping
+  - imagine
+  - transformative
+  - revolutionize
+  - buzzword
+  - game changer
+  - era
+  - embark
+  - realm
+  - aficionados
+  - compadre
+  - conquer
+  - debunk
+  - elusive
+  - embolden
+  - embrace
+  - engaging
+  - enhances
+  - fusion
+  - harness
+  - innovation
+  - keen
+  - landscape
+  - maestro
+  - mesmerizing
+  - palpable
+  - prowess
+  - rocking
+  - strides
+  - supercharge
+  - trailblazing
+  - turbocharge
+  - unleash
+  - unleashed
+  - unlock
+  - yield
+  - kicker
+
+# Multi-word phrases that must not appear (substring, case-insensitive).
+banned_phrases:
+  - imagine this
+  - assist you
+  - attention xyz
+  - bringing to life
+  - competitive landscape
+  - cutting-edge
+  - dive in
+  - exciting new tools
+  - exciting possibilities
+  - fast-paced world
+  - fear not
+  - herding cats
+  - in conclusion
+  - in the realm of
+  - in a world
+  - key to
+  - level up
+  - levelling up
+  - limitless potential
+  - making waves
+  - new heights
+  - picture this
+  - playing hard to get
+  - playing hide and seek
+  - rapidly evolving
+  - rapidly changing
+  - ride the wave
+  - secret weapon
+  - slow-burning flame
+  - that's where we come in
+  - think of it as
+  - true potential
+  - trusty sidekick
+  - unveiling the secrets
+  - ushering in an era of
+
+# Claims using these need a named source, else label as unverified.
+hedge_trigger_words:
+  - prevent
+  - guarantee
+  - will never
+  - fixes
+  - eliminates
+  - ensures that
+
+# Approved calls-to-action (never "click here").
+approved_ctas:
+  - Explore the full story
+  - Discover what happened next
+  - Read the full article
+
+# Banned in social captions specifically.
+caption_banned_words:
+  - sibling
+caption_max_lines: 3

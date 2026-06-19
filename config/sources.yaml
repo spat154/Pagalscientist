@@ -1,87 +1,84 @@
-# News sources for the "Made in India" desk.
+# News sources for Made in India Magazine (Australia).
 #
-# Principle: we sense the news ourselves from free, public feeds — we do NOT
-# buy a wire from a paid third-party aggregator. Every source below is a
-# public RSS/Atom feed or a Google News RSS query.
+# We sense the news ourselves from free, public RSS/Atom feeds and Google News
+# RSS queries. No paid wire. The mix is built around the three pillars:
+#   - India national news (context for the diaspora)
+#   - Australia news (where our readers live)
+#   - Diaspora / India-Australia intersection queries (the core beat)
 #
-# trust_tier: editorial trust weight used during verification.
-#   1 = primary / official / national paper of record (highest weight)
-#   2 = established mainstream outlet
-#   3 = niche / aggregator / lower-signal (corroborate before trusting)
-#
-# audience_weight: how strongly this source skews toward the "middle India"
-# reader (tier-2/tier-3 towns, aspirational, value-conscious, bilingual).
-# Higher means the story is more likely to land with our audience.
+# trust_tier: 1 = official/paper-of-record, 2 = mainstream, 3 = aggregator/query
+# audience_weight: how strongly the source skews to Australian-Indian readers.
 
 feeds:
-  - name: PIB (Govt of India)
-    url: https://pib.gov.in/RssMain.aspx?ModId=6&Lang=1&Regid=3
+  # --- Australia (where readers live) ---
+  - name: ABC News Australia - Top
+    url: https://www.abc.net.au/news/feed/51120/rss.xml
+    language: en
+    trust_tier: 1
+    audience_weight: 0.6
+    topics: [australia, national]
+
+  - name: SBS News - Australia
+    url: https://www.sbs.com.au/news/topic/australia/feed
     language: en
     trust_tier: 1
     audience_weight: 0.7
-    topics: [policy, government, schemes]
+    topics: [australia, multicultural]
 
+  - name: The Guardian - Australia
+    url: https://www.theguardian.com/australia-news/rss
+    language: en
+    trust_tier: 1
+    audience_weight: 0.6
+    topics: [australia, national]
+
+  # --- India (context for the diaspora) ---
   - name: The Hindu - National
     url: https://www.thehindu.com/news/national/feeder/default.rss
     language: en
     trust_tier: 1
     audience_weight: 0.6
-    topics: [national, politics]
+    topics: [india, national]
 
   - name: The Indian Express - India
     url: https://indianexpress.com/section/india/feed/
     language: en
     trust_tier: 1
     audience_weight: 0.6
-    topics: [national, politics]
+    topics: [india, national]
 
-  - name: NDTV - India
-    url: https://feeds.feedburner.com/ndtvnews-india-news
-    language: en
-    trust_tier: 2
-    audience_weight: 0.7
-    topics: [national, general]
-
-  - name: Hindustan Times - India
-    url: https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml
-    language: en
-    trust_tier: 2
-    audience_weight: 0.7
-    topics: [national, general]
-
-  - name: Mint - Economy
-    url: https://www.livemint.com/rss/economy
-    language: en
-    trust_tier: 2
-    audience_weight: 0.6
-    topics: [economy, business]
-
-  - name: Dainik Bhaskar (Hindi)
-    url: https://www.bhaskar.com/rss-v1--category-1387.xml
-    language: hi
-    trust_tier: 2
-    audience_weight: 0.9
-    topics: [national, regional]
-
-  # Topic-targeted Google News RSS queries. These let the desk "sense" any
-  # emerging story around themes our audience cares about, without a paid API.
-  - name: GNews - MSME / small business
-    url: https://news.google.com/rss/search?q=MSME+OR+%22small+business%22+India&hl=en-IN&gl=IN&ceid=IN:en
+  # --- Diaspora / India-Australia intersection (the core beat) ---
+  - name: GNews - Indian community Australia
+    url: https://news.google.com/rss/search?q=%22Indian%20community%22%20Australia%20OR%20%22Indian-Australian%22&hl=en-AU&gl=AU&ceid=AU:en
     language: en
     trust_tier: 3
-    audience_weight: 0.9
-    topics: [business, msme, jobs]
+    audience_weight: 0.98
+    topics: [diaspora, community]
 
-  - name: GNews - Made in India / manufacturing
-    url: https://news.google.com/rss/search?q=%22made+in+india%22+OR+manufacturing+India&hl=en-IN&gl=IN&ceid=IN:en
-    language: en
-    trust_tier: 3
-    audience_weight: 0.9
-    topics: [manufacturing, atmanirbhar, business]
-
-  - name: GNews - welfare schemes / yojana
-    url: https://news.google.com/rss/search?q=yojana+OR+%22welfare+scheme%22+India&hl=en-IN&gl=IN&ceid=IN:en
+  - name: GNews - India Australia relations / trade
+    url: https://news.google.com/rss/search?q=India%20Australia%20(trade%20OR%20visa%20OR%20students%20OR%20migration)&hl=en-AU&gl=AU&ceid=AU:en
     language: en
     trust_tier: 3
     audience_weight: 0.95
-    topics: [schemes, policy, welfare]
+    topics: [diaspora, trade, migration, students]
+
+  - name: GNews - Australia student visa / skilled migration
+    url: https://news.google.com/rss/search?q=Australia%20(%22student%20visa%22%20OR%20%22skilled%20migration%22%20OR%20PR)&hl=en-AU&gl=AU&ceid=AU:en
+    language: en
+    trust_tier: 3
+    audience_weight: 0.9
+    topics: [migration, students, visa]
+
+  - name: GNews - Indian culture / festivals Australia
+    url: https://news.google.com/rss/search?q=(Diwali%20OR%20Holi%20OR%20%22Indian%20festival%22%20OR%20Bollywood)%20Australia&hl=en-AU&gl=AU&ceid=AU:en
+    language: en
+    trust_tier: 3
+    audience_weight: 0.85
+    topics: [culture, festivals, pillar2]
+
+  - name: GNews - Indian diaspora global
+    url: https://news.google.com/rss/search?q=%22Indian%20diaspora%22&hl=en-AU&gl=AU&ceid=AU:en
+    language: en
+    trust_tier: 3
+    audience_weight: 0.8
+    topics: [diaspora, global]

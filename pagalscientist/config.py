@@ -63,6 +63,14 @@ class Settings:
         return self.raw.get("publishing", {})
 
     @property
+    def seo(self) -> dict[str, Any]:
+        return self.raw.get("seo", {})
+
+    @property
+    def social(self) -> dict[str, Any]:
+        return self.raw.get("social", {})
+
+    @property
     def db_path(self) -> str:
         return os.environ.get("PAGAL_DB", "data/pagalscientist.db")
 

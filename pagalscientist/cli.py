@@ -20,7 +20,8 @@ from .models import StoryStatus
 from .pipeline import Pipeline
 from .publish import available_targets
 from .publish.console import ConsolePublisher
-from .review import approve, edit_story, publish_story, reject
+from .review import (approve, edit_story, package, publish_story, reject,
+                     run_seo, run_social)
 from .store import Store
 
 
@@ -102,6 +103,53 @@ def cmd_reject(args):
     store.close()
 
 
+def cmd_seo(args):
+    settings = load_settings()
+    store = Store(args.db or settings.db_path)
+    story = run_seo(store, args.id, settings)
+    rm = story.seo.get("rankmath", {})
+    print(f"SEO for {args.id}: focus '{story.seo.get('focus_keyword')}' · "
+          f"RankMath {rm.get('score')}/100")
+    for k, v in rm.get("checks", {}).items():
+        print(f"  [{'x' if v else ' '}] {k}")
+    store.close()
+
+
+def cmd_social(args):
+    settings = load_settings()
+    store = Store(args.db or settings.db_path)
+    story = run_social(store, args.id, settings)
+    soc = story.social
+    print(f"Hook: {soc.get('hook')}\nCaption:\n{soc.get('caption')}")
+    print(f"CTA: {soc.get('cta')}  (options: {', '.join(soc.get('cta_options', []))})")
+    if soc.get("caption_flags"):
+        print(f"Caption flags: {soc['caption_flags']}")
+    store.close()
+
+
+def cmd_package(args):
+    settings = load_settings()
+    store = Store(args.db or settings.db_path)
+    package(store, args.id, settings)
+    print(f"Packaged {args.id} (SEO + social). View with: "
+          f"python -m pagalscientist.cli show {args.id}")
+    store.close()
+
+
+def cmd_commission(args):
+    import json
+    settings = load_settings()
+    store = Store(args.db or settings.db_path)
+    with open(args.sources, encoding="utf-8") as fh:
+        sources = json.load(fh)
+    refs = args.references.split(",") if args.references else None
+    pipe = Pipeline(store, settings=settings, sources=[])
+    story = pipe.commission(sources, direction=args.direction or "", references=refs)
+    print(f"Commissioned story {story.id}: {story.headline}")
+    print(f"Review with: python -m pagalscientist.cli show {story.id}")
+    store.close()
+
+
 def cmd_publish(args):
     settings = load_settings()
     store = Store(args.db or settings.db_path)
@@ -121,8 +169,10 @@ def build_parser() -> argparse.ArgumentParser:
     common.add_argument("--db", help="SQLite path (overrides config/env)")
     common.add_argument("-v", "--verbose", action="store_true")
 
-    p = argparse.ArgumentParser(prog="pagalscientist", description=__doc__,
-                                parents=[common])
+    # --db / -v are attached to each subcommand (pass them after the command,
+    # e.g. `... run --db x`). Keeping them off the top-level parser avoids
+    # argparse subparser defaults clobbering a value given before the command.
+    p = argparse.ArgumentParser(prog="pagalscientist", description=__doc__)
     sub = p.add_subparsers(dest="command", required=True, parser_class=lambda **kw:
                            argparse.ArgumentParser(parents=[common], **kw))
 
@@ -143,6 +193,23 @@ def build_parser() -> argparse.ArgumentParser:
 
     a = sub.add_parser("approve"); a.add_argument("id"); a.set_defaults(func=cmd_approve)
     j = sub.add_parser("reject"); j.add_argument("id"); j.set_defaults(func=cmd_reject)
+
+    se = sub.add_parser("seo", help="step 2: generate SEO package (RankMath-aligned)")
+    se.add_argument("id"); se.set_defaults(func=cmd_seo)
+
+    so = sub.add_parser("social", help="step 3: generate social story post")
+    so.add_argument("id"); so.set_defaults(func=cmd_social)
+
+    pk = sub.add_parser("package", help="run steps 2 + 3 (SEO + social)")
+    pk.add_argument("id"); pk.set_defaults(func=cmd_package)
+
+    co = sub.add_parser("commission",
+                        help="create an article from supplied sources + direction")
+    co.add_argument("--sources", required=True,
+                    help="path to a JSON file: [{source,title,summary,link,tier}]")
+    co.add_argument("--direction", help="editor's angle/direction for the piece")
+    co.add_argument("--references", help="comma-separated extra reference URLs")
+    co.set_defaults(func=cmd_commission)
 
     pub = sub.add_parser("publish", help=f"publish everywhere ({', '.join(available_targets())})")
     pub.add_argument("id")
