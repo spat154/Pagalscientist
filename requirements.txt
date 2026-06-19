@@ -1,0 +1,9 @@
+# Core pipeline dependencies.
+# The pure logic (clustering, scoring, store, review) runs on the standard
+# library alone. These packages enable the live integrations and are imported
+# lazily so the test suite and dry-run mode work without them installed.
+
+feedparser>=6.0        # RSS / Atom ingestion from free news sources
+PyYAML>=6.0            # config (sources + settings)
+requests>=2.31         # WordPress REST publishing
+anthropic>=0.40        # Claude content generation + verification reasoning

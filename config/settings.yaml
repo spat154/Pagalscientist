@@ -1,0 +1,72 @@
+# Tunables for Made in India Magazine. Env vars (PAGAL_*) override these.
+
+publication:
+  name: "Made in India Magazine"
+  base: "Australia"
+  cadence: "daily"
+  # Used in structured data (JSON-LD) for AEO. Set author to a real byline
+  # to strengthen E-E-A-T; leave blank to attribute to the publication.
+  author: ""
+
+audience:
+  name: "Australian Indians and friends of India in Australia"
+  description: >
+    Indians living in Australia, Australians who are interested in Indian
+    culture, and the wider Australian public for global stories that affect
+    them. Readers are diaspora-minded: they care about how news in India,
+    Australia, and the world lands for an Indian-Australian family.
+  reading_level: "clear, journalistic, analytical (not casual or blog-like)"
+  default_language: en-AU
+
+# The three pillars decide whether a story is worth covering at all. A story
+# must clearly serve at least one. The generator is told to name the pillar.
+pillars:
+  - id: 1
+    name: "Value to Indians living in Australia"
+    test: "Does this directly help or matter to an Indian person living in Australia?"
+  - id: 2
+    name: "Value to Australians interested in Indian culture"
+    test: "Does this add value for an Australian who likes Indian things?"
+  - id: 3
+    name: "Global news with direct Australian impact"
+    test: "If it fits neither 1 nor 2, does it directly affect Australians, especially the diaspora?"
+
+clustering:
+  similarity_threshold: 0.18
+  min_token_length: 3
+  max_cluster_age_hours: 48
+
+verification:
+  corroboration_for_auto: 2
+  min_score_to_draft: 45
+  trust_recommend_threshold: 70
+  recency_half_life_hours: 18
+  # Brief rule: every quote or date in the body needs >= this many references.
+  references_per_claim: 3
+
+generation:
+  # Models are configurable; defaults target current, capable Claude models.
+  generation_model: "claude-opus-4-8"
+  verify_model: "claude-sonnet-4-6"
+  max_tokens: 3000
+  target_word_count: 700
+  min_lines_per_entity: 5     # personalities/orgs/case studies need 5-7 lines
+
+seo:
+  # Aligned to RankMath's "score 100" on-page checks.
+  seo_title_max: 60
+  meta_description_max: 160
+  meta_description_min: 120
+  secondary_keyword_count: 4
+
+social:
+  caption_max_lines: 3
+  hashtag_count: 5
+
+publishing:
+  # Every story is staged as a DRAFT. Nothing goes live until a human approves
+  # and triggers publish. "Have it ready, hit a button."
+  stage_as_draft: true
+  default_targets: [console]   # add "wordpress" once WP_* env vars are set
+  category: "Made in India Magazine"
+  site_url: "https://madeinindiamagazine.com.au"   # used in JSON-LD schema
