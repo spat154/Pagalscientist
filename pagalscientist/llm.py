@@ -83,6 +83,14 @@ def _stub_response(system: str, user: str) -> str:
             ),
             "takeaway": "Add your API key to turn this into a finished, sourced article.",
             "tags": ["made-in-india", "dry-run"],
+            "faq": [
+                {"question": "Is this a real article?",
+                 "answer": "No. This is a dry-run placeholder produced without a "
+                           "live model; set ANTHROPIC_API_KEY for real content."},
+                {"question": "What will the live version include?",
+                 "answer": "An answer-first article in Australian English with a "
+                           "hook, subheadings, sourced facts, and this FAQ block."},
+            ],
             "references": [],
             "unverified_notes": ["I cannot verify any specifics in dry-run mode."],
         })

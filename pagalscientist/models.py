@@ -142,6 +142,8 @@ class Story:
     # Each quote/date must carry >= N reference URLs: {claim, type, urls:[...]}
     references: list[dict[str, Any]] = field(default_factory=list)
     unverified_notes: list[str] = field(default_factory=list)
+    faq: list[dict[str, str]] = field(default_factory=list)   # {question, answer}
+    schema: dict[str, Any] = field(default_factory=dict)       # JSON-LD structured data
     compliance: dict[str, Any] = field(default_factory=dict)   # style lint result
     seo: dict[str, Any] = field(default_factory=dict)          # step 2 output
     social: dict[str, Any] = field(default_factory=dict)       # step 3 output
@@ -149,7 +151,7 @@ class Story:
     @classmethod
     def create(cls, *, cluster_id, headline, dek, body, tags,
                credibility, sources, hook="", takeaway="", pillar="",
-               references=None, unverified_notes=None) -> "Story":
+               references=None, unverified_notes=None, faq=None) -> "Story":
         ts = now_iso()
         return cls(
             id=make_id(cluster_id, headline),
@@ -168,6 +170,7 @@ class Story:
             pillar=pillar,
             references=list(references or []),
             unverified_notes=list(unverified_notes or []),
+            faq=list(faq or []),
         )
 
     def to_dict(self) -> dict[str, Any]:

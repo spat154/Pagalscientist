@@ -42,6 +42,13 @@ care for sensitive topics (immigration, religion, conflict): stay neutral and \
 give context.
 - Aim for about {word_count} words.
 
+ANSWER ENGINE OPTIMISATION (so AI answer engines can cite us):
+- Write answer-first: open each section with a short, direct, quotable answer, \
+then expand. Phrase subheadings as the questions a reader would actually ask.
+- Provide a "faq" array of 3-5 genuine question/answer pairs. Each answer must \
+be self-contained, factual, and 1-3 sentences. Only include answers the sources \
+support.
+
 FACT STANDARDS (strict):
 - Never invent facts, examples, names, quotes, numbers or dates.
 - Do not include a statistic or claim unless a named, verifiable source backs \
@@ -62,8 +69,9 @@ STYLE BANS (do not use):
 
 Return JSON with keys: pillar (string: which pillar + one line why), headline, \
 dek, hook, body (markdown with subheadings; do NOT repeat the hook line), \
-takeaway, tags (array), references (array of {{claim, type:"quote"|"date", \
-urls:[...]}}), unverified_notes (array of strings)."""
+takeaway, tags (array), faq (array of {{question, answer}}), references (array \
+of {{claim, type:"quote"|"date", urls:[...]}}), unverified_notes (array of \
+strings)."""
 
 # Detect dates and direct quotes in prose, for the reference check.
 _DATE_RE = re.compile(
@@ -189,6 +197,7 @@ def generate_story(cluster, articles_by_id, credibility, settings, *,
         pillar=data.get("pillar", ""),
         references=data.get("references", []),
         unverified_notes=data.get("unverified_notes", []),
+        faq=data.get("faq", []),
     )
 
     # Mechanical checks attached for the editor.
@@ -198,5 +207,9 @@ def generate_story(cluster, articles_by_id, credibility, settings, *,
         "style": compliance_report(full_text, rules),
         "references": check_references(body, story.references, refs_required),
     }
+    # Structured data for AEO (Article + FAQPage + Event where relevant).
+    from .schema import build_jsonld, schema_summary
+    story.schema = build_jsonld(story, settings)
+    story.compliance["schema"] = schema_summary(story.schema, story)
     cluster.angle = data.get("pillar", "")
     return story

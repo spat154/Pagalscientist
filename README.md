@@ -75,6 +75,20 @@ A scroll-stopping but professional hook + caption (at most 3 lines, the word
 ("Explore the full story" / "Discover what happened next" /
 "Read the full article") and hashtags.
 
+## Answer Engine Optimisation (AEO)
+
+Every draft is built to be *cited* by AI answer engines (Google AI Overviews,
+ChatGPT, Perplexity), not just ranked:
+
+- **Answer-first writing** with question-style subheadings.
+- An **FAQ block** (3–5 sourced Q&A pairs) on every article.
+- **JSON-LD structured data** (`schema.py`): `Organization` + `NewsArticle`
+  (+ `FAQPage` when an FAQ exists), embedded on publish. Event-like stories are
+  *flagged* for an editor to add a verified date/venue rather than auto-emitting
+  invalid `Event` markup.
+- Citations from the story's sources are attached to the Article schema to
+  strengthen E-E-A-T.
+
 ## Quick start
 
 ```bash
@@ -143,6 +157,7 @@ pagalscientist/
   style.py              Australian-English + banned-content linter
   generate.py           step 1: write the article (+ fact/style checks)
   seo.py                step 2: SEO package (RankMath-aligned)
+  schema.py             AEO: JSON-LD structured data (Article/FAQ/Org)
   social.py             step 3: social story post
   publish/              pluggable targets (console, wordpress, ...)
   pipeline.py           ingest → cluster → verify → draft, and commission

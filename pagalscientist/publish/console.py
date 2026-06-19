@@ -52,6 +52,14 @@ class ConsolePublisher:
                          f"{'all quotes/dates backed' if refs.get('ok') else str(len(ub)) + ' unbacked: ' + str(ub)}")
         if story.unverified_notes:
             parts.append("**Unverified notes:** " + "; ".join(story.unverified_notes))
+        if story.faq:
+            parts.append("\n## FAQ")
+            for qa in story.faq:
+                parts.append(f"**{qa.get('question','')}**\n\n{qa.get('answer','')}\n")
+        if story.schema:
+            sch = story.compliance.get("schema", {}) if story.compliance else {}
+            types = ", ".join(sch.get("types", [])) or "Article"
+            parts.append(f"**Structured data (AEO):** {types}")
         if story.seo:
             seo = story.seo
             rm = seo.get("rankmath", {})

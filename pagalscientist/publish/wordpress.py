@@ -41,10 +41,20 @@ class WordPressPublisher:
                                  detail="`requests` not installed.")
 
         endpoint = f"{self.base_url}/wp-json/wp/v2/posts"
+        content = story.body
+        # Append an FAQ section and the JSON-LD structured data so the page is
+        # AEO-ready even if the theme/RankMath doesn't add it.
+        if story.faq:
+            content += "\n\n## FAQ\n" + "\n".join(
+                f"\n### {qa.get('question','')}\n{qa.get('answer','')}"
+                for qa in story.faq)
+        if story.schema:
+            from ..schema import to_script_tag
+            content += "\n\n" + to_script_tag(story.schema)
         payload = {
             "title": story.headline,
             "excerpt": story.dek,
-            "content": story.body,
+            "content": content,
             "status": "draft" if as_draft else "publish",
             "tags": [],  # tag IDs would be resolved here in a full integration
         }

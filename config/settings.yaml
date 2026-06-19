@@ -4,6 +4,9 @@ publication:
   name: "Made in India Magazine"
   base: "Australia"
   cadence: "daily"
+  # Used in structured data (JSON-LD) for AEO. Set author to a real byline
+  # to strengthen E-E-A-T; leave blank to attribute to the publication.
+  author: ""
 
 audience:
   name: "Australian Indians and friends of India in Australia"
@@ -66,3 +69,4 @@ publishing:
   stage_as_draft: true
   default_targets: [console]   # add "wordpress" once WP_* env vars are set
   category: "Made in India Magazine"
+  site_url: "https://madeinindiamagazine.com.au"   # used in JSON-LD schema
