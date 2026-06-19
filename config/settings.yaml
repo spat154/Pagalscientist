@@ -1,0 +1,46 @@
+# Tunables for the Made in India desk. Env vars (PAGAL_*) override these.
+
+audience:
+  # The editorial persona every story is written for.
+  name: "Middle India"
+  description: >
+    Aspirational readers in tier-2 and tier-3 towns and smaller cities.
+    Value-conscious, family-oriented, optimistic about India's rise, comfortable
+    reading English mixed with everyday Hindi. They care about jobs, schemes
+    that affect them, small business, education, prices, and stories of Indians
+    building things. They distrust hype and want the "what does this mean for
+    me" angle, not Delhi/Mumbai elite framing.
+  reading_level: "simple, conversational, grade 8"
+  default_language: en
+
+clustering:
+  # Two articles are considered the same story when their normalized
+  # token similarity (Jaccard) is at or above this threshold.
+  similarity_threshold: 0.18
+  min_token_length: 3
+  max_cluster_age_hours: 48
+
+verification:
+  # Minimum distinct sources before a single-source story can auto-advance.
+  corroboration_for_auto: 2
+  # Stories scoring at/above this can be auto-drafted; below goes to hold.
+  min_score_to_draft: 45
+  # Stories at/above this are recommended for fast review; below need scrutiny.
+  trust_recommend_threshold: 70
+  recency_half_life_hours: 18
+
+generation:
+  # Models are configurable; defaults target current, capable Claude models.
+  # Override with PAGAL_GENERATION_MODEL / PAGAL_VERIFY_MODEL.
+  generation_model: "claude-opus-4-8"
+  verify_model: "claude-sonnet-4-6"
+  max_tokens: 2000
+  target_word_count: 550
+
+publishing:
+  # Every story is staged as a DRAFT on each target. Nothing goes live until a
+  # human approves and triggers publish. This is the "have it ready, hit a
+  # button" workflow.
+  stage_as_draft: true
+  default_targets: [console]   # add "wordpress" once WP_* env vars are set
+  category: "Made in India"

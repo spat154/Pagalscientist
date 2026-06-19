@@ -1,0 +1,87 @@
+# News sources for the "Made in India" desk.
+#
+# Principle: we sense the news ourselves from free, public feeds — we do NOT
+# buy a wire from a paid third-party aggregator. Every source below is a
+# public RSS/Atom feed or a Google News RSS query.
+#
+# trust_tier: editorial trust weight used during verification.
+#   1 = primary / official / national paper of record (highest weight)
+#   2 = established mainstream outlet
+#   3 = niche / aggregator / lower-signal (corroborate before trusting)
+#
+# audience_weight: how strongly this source skews toward the "middle India"
+# reader (tier-2/tier-3 towns, aspirational, value-conscious, bilingual).
+# Higher means the story is more likely to land with our audience.
+
+feeds:
+  - name: PIB (Govt of India)
+    url: https://pib.gov.in/RssMain.aspx?ModId=6&Lang=1&Regid=3
+    language: en
+    trust_tier: 1
+    audience_weight: 0.7
+    topics: [policy, government, schemes]
+
+  - name: The Hindu - National
+    url: https://www.thehindu.com/news/national/feeder/default.rss
+    language: en
+    trust_tier: 1
+    audience_weight: 0.6
+    topics: [national, politics]
+
+  - name: The Indian Express - India
+    url: https://indianexpress.com/section/india/feed/
+    language: en
+    trust_tier: 1
+    audience_weight: 0.6
+    topics: [national, politics]
+
+  - name: NDTV - India
+    url: https://feeds.feedburner.com/ndtvnews-india-news
+    language: en
+    trust_tier: 2
+    audience_weight: 0.7
+    topics: [national, general]
+
+  - name: Hindustan Times - India
+    url: https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml
+    language: en
+    trust_tier: 2
+    audience_weight: 0.7
+    topics: [national, general]
+
+  - name: Mint - Economy
+    url: https://www.livemint.com/rss/economy
+    language: en
+    trust_tier: 2
+    audience_weight: 0.6
+    topics: [economy, business]
+
+  - name: Dainik Bhaskar (Hindi)
+    url: https://www.bhaskar.com/rss-v1--category-1387.xml
+    language: hi
+    trust_tier: 2
+    audience_weight: 0.9
+    topics: [national, regional]
+
+  # Topic-targeted Google News RSS queries. These let the desk "sense" any
+  # emerging story around themes our audience cares about, without a paid API.
+  - name: GNews - MSME / small business
+    url: https://news.google.com/rss/search?q=MSME+OR+%22small+business%22+India&hl=en-IN&gl=IN&ceid=IN:en
+    language: en
+    trust_tier: 3
+    audience_weight: 0.9
+    topics: [business, msme, jobs]
+
+  - name: GNews - Made in India / manufacturing
+    url: https://news.google.com/rss/search?q=%22made+in+india%22+OR+manufacturing+India&hl=en-IN&gl=IN&ceid=IN:en
+    language: en
+    trust_tier: 3
+    audience_weight: 0.9
+    topics: [manufacturing, atmanirbhar, business]
+
+  - name: GNews - welfare schemes / yojana
+    url: https://news.google.com/rss/search?q=yojana+OR+%22welfare+scheme%22+India&hl=en-IN&gl=IN&ceid=IN:en
+    language: en
+    trust_tier: 3
+    audience_weight: 0.95
+    topics: [schemes, policy, welfare]
